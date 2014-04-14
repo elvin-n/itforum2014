@@ -1,0 +1,8 @@
+{
+  "openweathermap": {
+    "name": "openweathermap",
+    "description": "service to take weather data",
+    "dashboardUrl": "http://openweathermap.org/API",
+    "auth": "key"
+  }
+}

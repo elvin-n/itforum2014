@@ -1,0 +1,30 @@
+{
+"endpoints": [
+  {
+    "name": "openweathermap",
+    "dashboardUrl": "http://openweathermap.org/API",
+    "methods": [
+      {
+        "MethodName": "getByGPSCoordinates",
+        "Synopsis": "Returns data by gps coodinates",
+        "parameters": [
+          {
+            "Name": "lat",
+            "Required": "Y",
+            "Default": " 55.4",
+            "Type": "string",
+            "Description": "latitude"
+          },
+          {
+            "Name": "lon",
+            "Required": "Y",
+            "Default": " 43.83",
+            "Type": "string",
+            "Description": "longitude"
+          }
+        ]
+      }
+    ]
+  }
+]
+}

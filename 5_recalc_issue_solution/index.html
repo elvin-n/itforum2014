@@ -1,0 +1,248 @@
+<html>
+<head>
+<style>
+#example-head { border-bottom: 1px solid #999; padding-bottom: 2px; font-weight: bold; }
+#example { font-family: Helvetica, Arial, san-serif; height: 400px; overflow: auto; line-height: 16px; border-bottom: 1px solid #999; padding: 10px 0; }
+#example .item { position: relative; }
+#example .item .lab { text-align: right; display: inline-block; color: #444; }
+#example .item .val { text-align: right; display: inline-block; margin: 0 5px; color: #999; }
+#example .item .bar { position: absolute; top: 1px; bottom: 1px; background-color: #444; margin-left: 5px; }
+#example.boo .bar { background-color: #7cf; }
+#example.yay .bar { background-color: #f88; }
+#example.th .bar { background-color: #a4f; }
+
+.tool { margin-bottom: 50px; line-height: 0; }
+.tool > .label { background-color: #ccc; color: #333; font-size: 16px; padding-left: 20px; line-height: 32px; text-shadow: 1px 1px 1px #fff; }
+
+#bindings { margin-bottom: 50px; }
+#bindings > span { font-weight: bold; display: block; border-bottom: 1px solid #ccc; margin-bottom: 5px; }
+#bindings > ul { list-style-type: none; padding: 0; margin: 0 0 50px 0; }
+#bindings li { margin: 0; display: inline-block; width: 220px; font-size: 90%; }
+
+#example-boo-time, #example-yay-time { width: 442px; display: inline-block; text-align: center; margin-bottom: 10px; }
+#example-boo-time, #example-th-time { width: 442px; display: inline-block; text-align: center; margin-bottom: 10px; }
+
+#example-boo-time { margin-right: 10px; }
+
+#example-boo, #example-yay, #example-th { margin-top: 10px; width: 442px; color: #fff; padding: 10px; border: 1px solid #5e5e5e; border-radius: 4px; background: #e95c41; background: -webkit-linear-gradient(top, #e95c41, #d93e2a); background: -moz-linear-gradient(top, #e95c41, #d93e2a); background: -o-linear-gradient(top, #e95c41, #d93e2a); background: -ms-linear-gradient(top, #e95c41, #d93e2a); font-size: 15px; }
+#example-boo:active, #example-yay:active { box-shadow: inset 0px -2px 10px rgba(0, 0, 0, 0.3); color: #eee; }
+
+#example-boo { margin-right: 10px; }
+</style>
+<script src="jquery.min.js"></script>
+<script>
+$(function () {
+
+(function() {
+
+// NOTE: I have intentionally avoided the use of jQuery in
+// the next two functions so as not to obscure any details.
+
+// Updates the DOM in such a way that layout is constantly
+// computed and thrown away.
+var UpdateThrash = function(data) {
+  // Get all the labels
+  var spans = document.querySelectorAll('.item .lab');
+
+  // We will attempt to determine the widest of our labels
+  // so we can right justify the labels of our graph.
+  // We are also going to change the styling (font-size).
+  var colWidth = 0;
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i];
+
+    // invalidates layout
+    span.style.fontSize = '19.1px';
+
+    // requires layout to be computed
+    colWidth = Math.max(colWidth, span.offsetWidth);
+  }
+
+  // Simply update the widths of the labels and the graphs
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i],
+         bar = span.nextSibling;
+    span.style.width = colWidth + 'px';
+
+    bar.style.left = colWidth + 'px';
+
+    var w = data[i].Total * ((860 - colWidth) / 326);
+    bar.style.width = w + 'px';
+  }
+};
+
+var Update = function(data) {
+  // Get all the labels
+  var spans = document.querySelectorAll('.item .lab');
+
+  // We will attempt to determine the widest of our labels
+  // so we can right justify the labels of our graph.
+  // We are also going to change the styling (font-size).
+  for (var i = 0; i < spans.length; i++) 
+  {
+    var span = spans[i];
+
+    span.style.fontSize = '19.1px';
+
+  }
+};
+
+
+// Updates the DOM in such a way that layout calculations
+// are not thrown away.
+var UpdateNoThrash = function(data) {
+  // Get all the labels
+  var spans = document.querySelectorAll('.item .lab');
+
+  // This time we will update all of our styles first.
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i];
+    span.style.fontSize = '14.0px';
+  }
+
+  // Then we will do all of our measurments in a separate
+  // pass. Layout is brought up-to-date on the first pass
+  // through this loop and is not invalidated.
+  var colWidth = 0;
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i];
+    colWidth = Math.max(colWidth, span.offsetWidth);
+  }
+
+  // Simply update the widths of the labels and the graphs
+  for (var i = 0; i < spans.length; i++) {
+    var span = spans[i],
+         bar = span.nextSibling;
+    span.style.width = colWidth + 'px';
+
+    bar.style.left = colWidth + 'px';
+
+    var w = data[i].Total * ((860 - colWidth) / 326);
+    bar.style.width = w + 'px';
+  }
+};
+
+
+// That's pretty much the end of the interesting stuff. You are welcome to read the
+// rest of the code. It's not like I wrote something offensive like "fu.." at the
+// bottom of this file.
+var Now;
+if (typeof performance !== 'undefined' && performance.now) {
+  Now = function() {
+    return performance.now();
+  };
+} else if (Date.now) {
+  Now = function() {
+    return Date.now();
+  };
+} else {
+  Now = function() {
+    return new Date().getTime();
+  }
+}
+
+var root = $('#example');
+
+var $e = function(type) {
+  return $(document.createElement(type));
+}
+
+var Time = function(f) {
+  var s = Now();
+  f();
+  return (Now() - s) | 0;
+};
+
+var jsonData = '[{"Place":"BIRMINGHAM C.O.,AL","Years":11,"ByMonth":[0.8,0.1,0.5,0.5,0,0,0,0,0,0,0,0],"Total":1.9},{"Place":"BIRMINGHAM AP,AL","Years":59,"ByMonth":[0.6,0.2,0.3,0.1,0,0,0,0,0,0,0,0.3],"Total":1.5},{"Place":"HUNTSVILLE, AL","Years":32,"ByMonth":[1.4,0.8,0.4,0,0,0,0,0,0,0,0,0.1],"Total":2.7},';
+jsonData += '{"Place":"MOBILE, AL","Years":60,"ByMonth":[0.1,0.1,0.1,0,0,0,0,0,0,0,0,0.1],"Total":0.4},{"Place":"MONTGOMERY, AL","Years":52,"ByMonth":[0.2,0.1,0.1,0,0,0,0,0,0,0,0,0],"Total":0.4},{"Place":"ANCHORAGE, AK","Years":59,"ByMonth":[10.4,11.7,9.6,4.4,0.5,0,0,0,0.3,7.7,10.8,15.2],"Total":70.6},{"Place":"ANNETTE, AK","Years":55,"ByMonth":[12,11,8.6,2.3,0.1,0,0,0,0,0.2,3.6,10.8],"Total":48.6},{"Place":"BARROW, AK","Years":82,"ByMonth":[2.4,2.1,1.9,2.2,1.9,0.6,0.5,0.7,3.7,7.4,3.7,2.6],"Total":29.7},{"Place":"BARTER IS.,AK","Years":40,"ByMonth":[4.6,2.5,2.5,2.3,2.9,1.6,0.5,1.6,5.7,9.5,5.1,3.3],"Total":42.1},{"Place":"BETHEL, AK","Years":44,"ByMonth":[7,6.2,8,5.6,2.1,0.1,0,0,0.4,4.3,9.4,9.9],"Total":53},{"Place":"BETTLES,AK","Years":51,"ByMonth":[12.7,9.9,10,6.7,1.3,0,0,0.1,2.3,12.2,13.2,14.7],"Total":83.1},{"Place":"BIG DELTA,AK","Years":50,"ByMonth":[5.7,5.4,4.5,2.8,0.7,0,0,0,1.6,9.5,8.6,6],"Total":44.8},{"Place":"COLD BAY,AK","Years":52,"ByMonth":[11.8,12.1,11,6.2,1.7,0,0,0,0,3.2,7.9,11.1],"Total":65},{"Place":"FAIRBANKS, AK","Years":51,"ByMonth":[10.5,8.6,6.1,3.2,0.9,0,0,0,1.6,11.1,13.1,12.8],"Total":67.9},{"Place":"GULKANA,AK","Years":56,"ByMonth":[7.5,7.4,5.4,2.6,0.6,0,0,0.1,1.1,8.3,8.9,10.3],"Total":52.2},{"Place":"HOMER, AK","Years":54,"ByMonth":[10.3,12,9.4,3.1,0.4,0,0,0,0,2.4,7.2,13],"Total":57.8},{"Place":"JUNEAU, AK","Years":58,"ByMonth":[25.6,19.1,14.6,3.3,0,0,0,0,0,1,11.8,21.9],"Total":97.3},{"Place":"KING SALMON, AK","Years":53,"ByMonth":[8.7,6.8,6.7,4.5,0.9,0,0,0,0,3,6.2,9.1],"Total":45.9},{"Place":"KODIAK, AK","Years":40,"ByMonth":[15.3,17.6,12.7,7.5,0.7,0,0,0,0,2.1,7,14.6],"Total":77.5},{"Place":"KOTZEBUE, AK","Years":59,"ByMonth":[7,5.6,5.4,5.4,1.6,0.1,0,0,1.2,6.4,8.5,7.9],"Total":49.1},{"Place":"MCGRATH, AK","Years":59,"ByMonth":[15,12.3,11.4,7,0.9,0,0,0,1.1,10.2,16.7,18.5],"Total":93.1},{"Place":"NOME, AK","Years":56,"ByMonth":[10.8,8.1,7.4,7.2,2.3,0.1,0,0,0.5,5,11.1,10.1],"Total":62.6},{"Place":"ST. PAUL ISLAND, AK","Years":77,"ByMonth":[12.3,10.1,9.2,5.7,2.1,0.1,0,0,0.1,2.6,6.5,9.7],"Total":58.4},{"Place":"TALKEETNA, AK","Years":67,"ByMonth":[19.4,18.9,17.7,8,0.8,0,0,0,0.2,10.5,17.9,22],"Total":115.4},{"Place":"UNALAKLEET, AK","Years":25,"ByMonth":[5.1,5.5,5.6,3.6,1,0,0,0,0.8,3.9,7.1,5.4],"Total":38},{"Place":"VALDEZ, AK","Years":31,"ByMonth":[66.3,58.4,52.3,22.5,2,0,0,0,0.4,12.1,39.6,72.4],"Total":326},{"Place":"YAKUTAT, AK","Years":54,"ByMonth":[37.6,37.7,36.3,16.4,1.5,0,0,0,0,5.6,22,38.2],"Total":195.3},{"Place":"FLAGSTAFF, AZ","Years":44,"ByMonth":[20.4,18.4,22,9.9,1.7,0,0,0,0.1,2,9.9,15.9],"Total":100.3},{"Place":"PHOENIX, AZ","Years":62,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"TUCSON, AZ","Years":62,"ByMonth":[0.3,0.2,0.2,0.1,0,0,0,0,0,0,0.1,0.3],"Total":1.2},{"Place":"WINSLOW, AZ","Years":64,"ByMonth":[2.5,1.8,1.9,0.4,0,0,0,0,0,0.2,0.7,3],"Total":10.5}';
+jsonData += ',{"Place":"YUMA, AZ","Years":45,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"FORT SMITH, AR","Years":53,"ByMonth":[2.5,1.8,0.7,0,0,0,0,0,0,0,0.4,0.8],"Total":6.2},{"Place":"LITTLE ROCK, AR","Years":56,"ByMonth":[2.4,1.5,0.5,0,0,0,0,0,0,0,0.2,0.6],"Total":5.2},{"Place":"NORTH LITTLE ROCK, AR","Years":24,"ByMonth":[2.8,2.1,0.5,0,0,0,0,0,0,0,0.3,0.4],"Total":6.1},{"Place":"BAKERSFIELD, CA","Years":60,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"BISHOP, CA","Years":47,"ByMonth":[4,1.5,0.7,0.3,0.1,0,0,0,0,0,0.3,1.3],"Total":8.2},{"Place":"BLUE CANYON, CA","Years":48,"ByMonth":[46.7,42.2,50.7,27.8,7.6,0.5,0,0,0.3,2.6,23.1,38.8],"Total":240.3},{"Place":"EUREKA, CA.","Years":92,"ByMonth":[0.1,0.1,0,0,0,0,0,0,0,0,0,0],"Total":0.2},{"Place":"FRESNO, CA","Years":48,"ByMonth":[0.1,0,0,0,0,0,0,0,0,0,0,0],"Total":0.1},{"Place":"LONG BEACH, CA","Years":52,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"LOS ANGELES AP, CA","Years":62,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"LOS ANGELES C.O., CA","Years":44,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"MOUNT SHASTA, CA","Years":42,"ByMonth":[29.9,16.9,17.1,8.9,0.8,0,0,0,0,0.4,9,21.9],"Total":104.9},{"Place":"REDDING, CA","Years":10,"ByMonth":[1.5,0.3,0.2,0,0.2,0,0,0,0,0,0,1.8],"Total":4},{"Place":"SACRAMENTO, CA","Years":50,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"SAN DIEGO, CA","Years":60,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"SAN FRANCISCO AP, CA","Years":69,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"SAN FRANCISCO C.O., CA","Years":38,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"SANTA BARBARA, CA","Years":12,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"SANTA MARIA, CA","Years":54,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"STOCKTON, CA","Years":42,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"ALAMOSA, CO","Years":55,"ByMonth":[4.4,4,5.6,4.3,1.8,0,0,0,0.2,3.2,4.1,5.3],"Total":32.9},{"Place":"COLORADO SPRINGS, CO","Years":54,"ByMonth":[5.2,4.8,9.3,6.7,1.5,0,0,0,1,3.4,5.4,5.1],"Total":42.4},{"Place":"DENVER, CO","Years":61,"ByMonth":[8.1,7.5,12.5,8.9,1.6,0,0,0,1.6,3.7,9.1,7.3],"Total":60.3},{"Place":"GRAND JUNCTION, CO","Years":56,"ByMonth":[6.7,3.8,3.6,1.2,0.1,0,0,0,0.1,0.5,2.7,4.9],"Total":23.6},{"Place":"PUEBLO, CO","Years":60,"ByMonth":[5.9,4.2,6.8,3.9,0.6,0,0,0,0.6,1.4,4.6,5.2],"Total":33.2},{"Place":"BRIDGEPORT, CT","Years":49,"ByMonth":[7.6,7.8,4.9,0.7,0,0,0,0,0,0,0.6,4.6],"Total":26.2},{"Place":"HARTFORD, CT","Years":45,"ByMonth":[12.9,12.2,10.1,1.5,0,0,0,0,0,0.1,2.1,10.1],"Total":49},{"Place":"WILMINGTON, DE","Years":52,"ByMonth":[6.7,6.1,3.2,0.2,0,0,0,0,0,0.1,0.9,3.3],"Total":20.5},{"Place":"WASHINGTON DULLES AP, D.C.","Years":40,"ByMonth":[7.5,6.4,3.4,0.4,0,0,0,0,0,0,1.2,3.4],"Total":22.3},{"Place":"WASHINGTON NAT`L AP, D.C.","Years":59,"ByMonth":[5.5,5.1,2.3,0,0,0,0,0,0,0,0.8,2.9],"Total":16.6},{"Place":"APALACHICOLA, FL","Years":63,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"DAYTONA BEACH, FL","Years":53,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"FORT MYERS, FL","Years":54,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"GAINESVILLE, FL","Years":15,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"JACKSONVILLE, FL","Years":60,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"KEY WEST, FL","Years":48,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"MIAMI, FL","Years":59,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0}';
+jsonData += ',{"Place":"ORLANDO, FL","Years":60,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"PENSACOLA, FL","Years":34,"ByMonth":[0.1,0.1,0,0,0,0,0,0,0,0,0,0],"Total":0.2},{"Place":"TALLAHASSEE, FL","Years":35,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"TAMPA, FL","Years":56,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"VERO BEACH, FL","Years":18,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"WEST PALM BEACH, FL","Years":55,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"ATHENS, GA","Years":53,"ByMonth":[0.9,0.7,0.5,0,0,0,0,0,0,0,0.1,0.2],"Total":2.4},{"Place":"ATLANTA, GA","Years":65,"ByMonth":[1,0.5,0.4,0,0,0,0,0,0,0,0,0.2],"Total":2.1},{"Place":"AUGUSTA,GA","Years":50,"ByMonth":[0.3,0.7,0,0,0,0,0,0,0,0,0,0.1],"Total":1.1},{"Place":"COLUMBUS, GA","Years":56,"ByMonth":[0.1,0.3,0.1,0,0,0,0,0,0,0,0,0],"Total":0.5},{"Place":"MACON, GA","Years":48,"ByMonth":[0.3,0.5,0.1,0,0,0,0,0,0,0,0,0],"Total":0.9},{"Place":"SAVANNAH, GA","Years":47,"ByMonth":[0.1,0.2,0,0,0,0,0,0,0,0,0,0.1],"Total":0.4},{"Place":"HILO, HI","Years":55,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"HONOLULU,HI","Years":52,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"KAHULUI, HI","Years":44,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"LIHUE, HI","Years":48,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"BOISE, ID","Years":63,"ByMonth":[6.5,3.7,1.7,0.6,0.1,0,0,0,0,0.1,2.3,5.7],"Total":20.7},{"Place":"LEWISTON, ID","Years":49,"ByMonth":[5.9,2.5,1.3,0.1,0,0,0,0,0,0.1,1.7,4.2],"Total":15.8},{"Place":"POCATELLO, ID","Years":53,"ByMonth":[9.8,6.1,5.6,4.1,0.7,0,0,0,0.1,2,5,8.8],"Total":42.2},{"Place":"CAIRO,IL","Years":45,"ByMonth":[3.8,2.5,2.1,0,0,0,0,0,0,0,0.4,1.4],"Total":10.2},{"Place":"CHICAGO,IL","Years":43,"ByMonth":[11.2,7.9,6.9,1.6,0.1,0,0,0,0,0.4,2,8.4],"Total":38.5},{"Place":"MOLINE, IL","Years":69,"ByMonth":[8.4,5.8,5.8,1,0,0,0,0,0,0.2,2.2,7.3],"Total":30.7},{"Place":"PEORIA, IL","Years":59,"ByMonth":[6.7,5,4.2,0.8,0,0,0,0,0,0.1,2,6.1],"Total":24.9},{"Place":"ROCKFORD, IL","Years":51,"ByMonth":[9.1,6.8,6.3,1.3,0,0,0,0,0,0.1,2.5,9.1],"Total":35.2},{"Place":"SPRINGFIELD, IL","Years":55,"ByMonth":[6,5.8,3.9,0.7,0,0,0,0,0,0,1.7,5],"Total":23.1},{"Place":"EVANSVILLE, IN","Years":61,"ByMonth":[4,3.7,2.7,0.3,0,0,0,0,0,0.1,0.6,2.7],"Total":14.1},{"Place":"FORT WAYNE, IN","Years":56,"ByMonth":[8.4,7.1,5.1,1.5,0,0,0,0,0,0.3,3,7],"Total":32.4},{"Place":"INDIANAPOLIS, IN","Years":71,"ByMonth":[6.8,5.4,3.5,0.5,0,0,0,0,0,0.2,1.9,5.3],"Total":23.6},{"Place":"SOUTH BEND, IN","Years":63,"ByMonth":[19.1,14.7,9.1,2,0,0,0,0,0,0.7,7.7,17.5],"Total":70.8},{"Place":"DES MOINES, IA","Years":59,"ByMonth":[8.3,7.1,6,1.8,0,0,0,0,0,0.3,3.1,6.5],"Total":33.1},{"Place":"DUBUQUE,IA","Years":49,"ByMonth":[9.7,7.6,9,2.5,0.1,0,0,0,0,0.2,3.3,10.3],"Total":42.7},{"Place":"SIOUX CITY, IA","Years":62,"ByMonth":[6.3,5.8,7.3,1.5,0.1,0,0,0,0,0.8,3.9,6.2],"Total":31.9},{"Place":"WATERLOO, IA","Years":44,"ByMonth":[7.4,6.5,5.8,1.6,0,0,0,0,0,0.1,3.6,6.9],"Total":31.9},{"Place":"CONCORDIA, KS","Years":33,"ByMonth":[5.6,5.4,3.4,0.7,0,0,0,0,0,0.3,2.1,4.2],"Total":21.7},{"Place":"DODGE CITY, KS","Years":60,"ByMonth":[4.6,3.9,5.1,0.8,0,0,0,0,0,0.3,2.1,3.5],"Total":20.3},{"Place":"GOODLAND, KS","Years":63,"ByMonth":[6.2,5.1,8.9,4.4,0.5,0.1,0,0,0.3,2.2,4.7,5.3],"Total":37.7},{"Place":"TOPEKA, KS","Years":56,"ByMonth":[5.7,4.5,3.7,0.5,0,0,0,0,0,0.2,1.3,4.8],"Total":20.7},{"Place":"WICHITA, KS","Years":49,"ByMonth":[4.2,3.9,2.8,0.2,0,0,0,0,0,0,1.3,3.3],"Total":15.7},{"Place":"GREATER CINCINNATI AP","Years":55,"ByMonth":[7.2,5.4,4.3,0.5,0,0,0,0,0,0.3,2,3.7],"Total":23.4},{"Place":"JACKSON, KY","Years":22,"ByMonth":[7.2,6.6,3.5,1.2,0.1,0,0,0,0,0.2,0.7,4.2],"Total":23.7},{"Place":"LEXINGTON, KY","Years":52,"ByMonth":[5.8,4.7,2.7,0.3,0,0,0,0,0,0,0.6,1.9],"Total":16},{"Place":"LOUISVILLE, KY","Years":55,"ByMonth":[5.4,4.3,3.1,0.1,0,0,0,0,0,0.1,1,2.4],"Total":16.4},{"Place":"PADUCAH KY","Years":19,"ByMonth":[3.3,3.4,0.9,0,0,0,0,0,0,0.2,0,2.5],"Total":10.3},{"Place":"BATON ROUGE, LA","Years":46,"ByMonth":[0,0.2,0,0,0,0,0,0,0,0,0,0],"Total":0.2},{"Place":"LAKE CHARLES, LA","Years":36,"ByMonth":[0.2,0.1,0,0,0,0,0,0,0,0,0,0],"Total":0.3},{"Place":"NEW ORLEANS, LA","Years":51,"ByMonth":[0,0.1,0,0,0,0,0,0,0,0,0,0.1],"Total":0.2},{"Place":"SHREVEPORT, LA","Years":50,"ByMonth":[0.7,0.4,0.2,0,0,0,0,0,0,0,0,0.2],"Total":1.5},{"Place":"CARIBOU, ME","Years":62,"ByMonth":[24.4,22,19.6,8.5,0.8,0,0,0,0,1.8,11.8,22.7],"Total":111.6},{"Place":"PORTLAND, ME","Years":62,"ByMonth":[19.3,16.5,13.5,2.9,0.2,0,0,0,0,0.2,3.3,14.5],"Total":70.4},{"Place":"BALTIMORE, MD","Years":52,"ByMonth":[6.3,6.5,3.8,0.1,0,0,0,0,0,0,1,3.1],"Total":20.8},{"Place":"BLUE HILL, MA","Years":117,"ByMonth":[15.6,15.6,11.8,3.3,0.1,0,0,0,0,0.2,2.8,10.9],"Total":60.3},{"Place":"BOSTON, MA","Years":65,"ByMonth":[12.8,11.5,8.1,0.9,0,0,0,0,0,0,1.3,7.6],"Total":42.2},{"Place":"WORCESTER, MA","Years":40,"ByMonth":[16.3,16.1,14,3.6,0.3,0,0,0,0,0.5,3.6,13.2],"Total":67.6},{"Place":"ALPENA, MI","Years":40,"ByMonth":[21.8,16,12.7,5,0.2,0,0,0,0,0.6,8.5,19.8],"Total":84.6},{"Place":"DETROIT, MI","Years":44,"ByMonth":[10.6,9,6.9,1.7,0,0,0,0,0,0.2,2.7,10],"Total":41.1},{"Place":"FLINT, MI","Years":61,"ByMonth":[11.9,9.3,7.5,2.4,0,0,0,0,0,0.2,3.7,9.9],"Total":44.9},{"Place":"GRAND RAPIDS, MI","Years":39,"ByMonth":[20.8,11.8,9.9,2.7,0,0,0,0,0,0.8,7.8,19.4],"Total":73.2},{"Place":"HOUGHTON LAKE, MI","Years":34,"ByMonth":[19.2,12.6,11.4,4.2,0.2,0,0,0,0,0.7,10.1,16],"Total":74.4},{"Place":"LANSING, MI","Years":96,"ByMonth":[12.1,9.8,8.4,2.6,0.2,0,0,0,0,0.4,4.5,10.8],"Total":48.8},{"Place":"MARQUETTE, MI","Years":65,"ByMonth":[30.5,25.1,23.7,9.2,1.4,0,0,0,0.2,4.4,17.9,28.6],"Total":141},{"Place":"MUSKEGON, MI","Years":60,"ByMonth":[31,17.3,11.3,2.7,0,0,0,0,0,0.5,8.9,24.4],"Total":96.1},{"Place":"SAULT STE. MARIE, MI","Years":57,"ByMonth":[29.2,18.2,14.6,5.8,0.5,0,0,0,0.1,2.4,15.6,31],"Total":117.4},{"Place":"DULUTH, MN","Years":59,"ByMonth":[17.7,11.9,13.8,6.8,0.7,0,0,0,0.1,1.6,12.9,15.2],"Total":80.7},{"Place":"INTERNATIONAL FALLS, MN","Years":62,"ByMonth":[12.9,9.3,9.3,6.4,0.8,0,0,0,0.1,1.9,12.5,12.3],"Total":65.5},{"Place":"MINNEAPOLIS-ST.PAUL, MN","Years":62,"ByMonth":[10.7,8.1,10.5,2.8,0.1,0,0,0,0,0.5,7.8,9.4],"Total":49.9},{"Place":"ROCHESTER, MN","Years":40,"ByMonth":[10.7,7.6,9.3,4,0,0,0,0,0,0.8,5.7,10.8],"Total":48.9},{"Place":"SAINT CLOUD, MN","Years":56,"ByMonth":[9.1,7.3,9.6,2.7,0.1,0,0,0,0,0.6,7.6,8.1],"Total":45.1},{"Place":"JACKSON, MS","Years":38,"ByMonth":[0.5,0.2,0.2,0,0,0,0,0,0,0,0,0.1],"Total":1},{"Place":"MERIDIAN, MS","Years":51,"ByMonth":[0.4,0.2,0.1,0.1,0,0,0,0,0,0,0,0.4],"Total":1.2},{"Place":"TUPELO, MS","Years":16,"ByMonth":[1.3,0.9,0.3,0,0,0,0,0,0,0,0,0.3],"Total":2.8},{"Place":"COLUMBIA, MO","Years":48,"ByMonth":[5.9,6.1,4.1,0.7,0,0,0,0,0,0,1.8,4.2],"Total":22.8},{"Place":"KANSAS CITY, MO","Years":68,"ByMonth":[5.6,4.4,3.4,0.8,0,0,0,0,0,0.1,1.2,4.4],"Total":19.9},{"Place":"ST. LOUIS, MO","Years":66,"ByMonth":[5.4,4.4,3.9,0.5,0,0,0,0,0,0,1.4,4],"Total":19.6},{"Place":"SPRINGFIELD, MO","Years":57,"ByMonth":[4.9,4,3.4,0.4,0,0,0,0,0,0,1.6,3.5],"Total":17.8},{"Place":"BILLINGS, MT","Years":68,"ByMonth":[9.3,7.6,10.2,8.1,1.6,0,0,0,1.2,3.6,6.8,8.3],"Total":56.7},{"Place":"GLASGOW, MT","Years":47,"ByMonth":[6.7,4.2,4.2,2.6,0.8,0,0,0,0.2,1.2,4,5.5],"Total":29.4},{"Place":"GREAT FALLS, MT","Years":65,"ByMonth":[9.5,8.5,10.6,7.1,1.9,0.3,0,0.1,1.5,3.4,7.3,8.1],"Total":58.3},{"Place":"HELENA, MT","Years":58,"ByMonth":[8.5,6.1,7.3,4.9,1.4,0.1,0,0.1,1.5,2.3,6.4,8.3],"Total":46.9}';
+jsonData += ',{"Place":"KALISPELL, MT","Years":50,"ByMonth":[17.1,10.2,6.5,2.5,0.7,0.1,0,0,0.1,1.4,9.3,17],"Total":64.9},{"Place":"MISSOULA, MT","Years":58,"ByMonth":[12.1,7.3,5.8,2.1,0.8,0,0,0,0,0.8,6.1,11.3],"Total":46.3},{"Place":"GRAND ISLAND, NE","Years":64,"ByMonth":[6.2,5.9,6.3,1.8,0.2,0,0,0,0.1,0.7,3.4,5.7],"Total":30.3},{"Place":"LINCOLN, NE","Years":47,"ByMonth":[6.1,5.7,5.9,1.4,0.1,0,0,0,0,0.6,2.8,5.2],"Total":27.8},{"Place":"NORFOLK, NE","Years":57,"ByMonth":[5.7,5.8,6.2,2.1,0.1,0,0,0,0,0.6,3.7,5.7],"Total":29.9},{"Place":"NORTH PLATTE, NE","Years":50,"ByMonth":[5.3,5.2,6.4,3.1,0.1,0,0,0,0.2,1.6,3.7,4.3],"Total":29.9},{"Place":"OMAHA EPPLEY AP, NE","Years":67,"ByMonth":[7.2,6.7,6.3,1,0.1,0,0,0,0,0.3,2.6,5.7],"Total":29.9},{"Place":"OMAHA (NORTH), NE","Years":39,"ByMonth":[7.2,6.5,6.9,1.4,0,0,0,0,0,0.5,3.4,5.3],"Total":31.2},{"Place":"SCOTTSBLUFF, NE","Years":59,"ByMonth":[6.4,5.7,8.6,4.8,0.9,0,0,0,0.5,2.6,5.3,6.3],"Total":41.1},{"Place":"VALENTINE, NE","Years":47,"ByMonth":[4.6,5.6,7.1,4.5,0.1,0,0,0,0.5,1.5,5.1,4.5],"Total":33.5},{"Place":"ELKO, NV","Years":71,"ByMonth":[10.1,6.3,5.3,2.6,0.8,0,0,0,0.1,0.7,4.4,8.2],"Total":38.5},{"Place":"ELY, NV","Years":59,"ByMonth":[9,7,9.2,5.8,2.3,0.2,0,0,0.3,2.4,5.2,7.3],"Total":48.7},{"Place":"LAS VEGAS, NV","Years":48,"ByMonth":[0.9,0.1,0,0,0,0,0,0,0,0,0.1,0.1],"Total":1.2},{"Place":"RENO, NV","Years":54,"ByMonth":[5.8,5.2,4.3,1.2,0.8,0,0,0,0,0.3,2.4,4.3],"Total":24.3},{"Place":"WINNEMUCCA, NV","Years":47,"ByMonth":[5.2,3.7,4.3,2.2,0.5,0,0,0,0,0.4,2.2,4.7],"Total":23.2},{"Place":"CONCORD, NH","Years":61,"ByMonth":[17.8,14.1,11.6,2.5,0.1,0,0,0,0,0.1,3.9,13.7],"Total":63.8},{"Place":"MT. WASHINGTON, NH","Years":70,"ByMonth":[41.2,40.6,43.6,31.2,11.8,1.3,0,0.1,2,12.8,33.5,42.5],"Total":260.6},{"Place":"ATLANTIC CITY AP, NJ","Years":53,"ByMonth":[4.9,5.3,2.5,0.3,0,0,0,0,0,0,0.4,2.3],"Total":15.7},{"Place":"NEWARK, NJ","Years":61,"ByMonth":[7.6,8.3,4.9,0.7,0,0,0,0,0,0,0.6,5.5],"Total":27.6},{"Place":"ALBUQUERQUE, NM","Years":63,"ByMonth":[2.5,2.1,1.8,0.6,0,0,0,0,0,0.1,1.2,2.7],"Total":11},{"Place":"CLAYTON, NM","Years":48,"ByMonth":[3.8,3.4,5,1.9,0.4,0,0,0,0.1,0.7,3,3.7],"Total":22},{"Place":"ROSWELL, NM","Years":51,"ByMonth":[2.9,2.7,1.2,0.3,0,0,0,0,0,0.2,1.2,3.2],"Total":11.7},{"Place":"ALBANY, NY","Years":56,"ByMonth":[16.7,13.7,11.6,2.7,0.1,0,0,0,0,0.2,4.3,14.6],"Total":63.9},{"Place":"BINGHAMTON, NY","Years":51,"ByMonth":[20.5,17.1,15.2,4.9,0.3,0,0,0,0,0.7,7.5,18],"Total":84.2},{"Place":"BUFFALO, NY","Years":59,"ByMonth":[24,17.7,12.5,3.2,0.2,0,0,0,0,0.3,11.4,24.3],"Total":93.6},{"Place":"ISLIP, NY","Years":16,"ByMonth":[6.6,5.7,4.7,1.1,0,0,0,0,0,0,0.9,3.7],"Total":22.7},{"Place":"NEW YORK C.PARK, NY","Years":134,"ByMonth":[7.5,8.5,5.1,0.9,0,0,0,0,0,0,0.9,5.5],"Total":28.4},{"Place":"NEW YORK (JFK AP), NY","Years":44,"ByMonth":[6.7,7.7,3.7,0.5,0,0,0,0,0,0,0.3,3.8],"Total":22.7},{"Place":"NEW YORK (LAGUARDIA AP), NY","Years":58,"ByMonth":[6.9,8.4,4.6,0.6,0,0,0,0,0,0,0.5,5],"Total":26},{"Place":"ROCHESTER, NY","Years":62,"ByMonth":[23.5,21.8,15.8,3.5,0.3,0,0,0,0,0.2,7.5,19.7],"Total":92.3},{"Place":"SYRACUSE, NY","Years":53,"ByMonth":[30.3,25.2,18.2,3.7,0.1,0,0,0,0,0.6,10.2,27.3],"Total":115.6},{"Place":"ASHEVILLE, NC","Years":38,"ByMonth":[4.8,4.1,2.9,0.6,0,0,0,0,0,0,0.7,2.1],"Total":15.2},{"Place":"CAPE HATTERAS, NC","Years":38,"ByMonth":[0.4,0.5,0.4,0,0,0,0,0,0,0,0,0.6],"Total":1.9},{"Place":"CHARLOTTE, NC","Years":63,"ByMonth":[2.1,1.6,1.2,0,0,0,0,0,0,0,0.1,0.5],"Total":5.5},{"Place":"GREENSBORO-WNSTN-SALM-HGHPT,NC","Years":74,"ByMonth":[3.6,2.4,1.7,0,0,0,0,0,0,0,0.1,1.3],"Total":9.1},{"Place":"RALEIGH, NC","Years":58,"ByMonth":[2.8,2.5,1.3,0,0,0,0,0,0,0,0.1,0.8],"Total":7.5},{"Place":"WILMINGTON, NC","Years":51,"ByMonth":[0.5,0.5,0.4,0,0,0,0,0,0,0,0,0.6],"Total":2},{"Place":"BISMARCK, ND","Years":63,"ByMonth":[7.8,7,8.5,4.1,0.9,0,0,0,0.2,1.9,7,6.9],"Total":44.3},{"Place":"FARGO, ND","Years":60,"ByMonth":[9.5,6.1,7.5,3.4,0.1,0,0,0,0,0.7,6.2,7.3],"Total":40.8},{"Place":"WILLISTON, ND","Years":41,"ByMonth":[8.4,5.4,6.8,4.6,1.1,0,0,0,0.3,1.8,5.7,7.8],"Total":41.9},{"Place":"AKRON, OH","Years":54,"ByMonth":[11.7,9.2,8.9,2.5,0.1,0,0,0,0,0.6,4.5,9.6],"Total":47.1},{"Place":"CLEVELAND, OH","Years":61,"ByMonth":[13.5,12,10.9,2.4,0.1,0,0,0,0,0.6,5.3,12.1],"Total":56.9},{"Place":"COLUMBUS, OH","Years":55,"ByMonth":[8.8,5.9,4.4,0.9,0,0,0,0,0,0.1,2.2,5.4],"Total":27.7},{"Place":"DAYTON, OH","Years":58,"ByMonth":[8.3,5.8,5,0.7,0,0,0,0,0,0.2,2.1,5.2],"Total":27.3},{"Place":"MANSFIELD, OH","Years":42,"ByMonth":[11.7,9.5,7.5,1.8,0.1,0,0,0,0,0.4,2.5,8.9],"Total":42.4},{"Place":"TOLEDO, OH","Years":43,"ByMonth":[10,8.1,6.2,1.6,0,0,0,0,0,0.1,2.9,8.2],"Total":37.1},{"Place":"YOUNGSTOWN, OH","Years":59,"ByMonth":[13.2,10.9,10.9,2.4,0.1,0,0,0,0,0.6,5.4,12.3],"Total":55.8},{"Place":"OKLAHOMA CITY, OK","Years":63,"ByMonth":[3.2,2.4,1.5,0,0,0,0,0,0,0,0.5,1.9],"Total":9.5},{"Place":"TULSA, OK","Years":63,"ByMonth":[3.3,2.4,1.9,0,0,0,0,0,0,0,0.5,1.9],"Total":10},{"Place":"ASTORIA, OR","Years":43,"ByMonth":[2.1,0.4,0.5,0,0,0,0,0,0,0,0.2,1.1],"Total":4.3},{"Place":"BURNS,OR","Years":11,"ByMonth":[7.8,8,3.9,0.7,0.3,0.1,0,0,0,0.6,7.4,12.5],"Total":41.3},{"Place":"EUGENE, OR","Years":54,"ByMonth":[3.5,1,0.5,0,0,0,0,0,0,0,0.2,1.2],"Total":6.4},{"Place":"MEDFORD, OR","Years":69,"ByMonth":[3.2,1.2,0.7,0.2,0,0,0,0,0,0,0.5,1.5],"Total":7.3},{"Place":"PENDLETON, OR","Years":67,"ByMonth":[6.7,3.7,0.9,0.1,0,0,0,0,0,0.1,1.7,3.9],"Total":17.1},{"Place":"PORTLAND, OR","Years":55,"ByMonth":[3.2,1.1,0.4,0,0,0,0,0,0,0,0.4,1.4],"Total":6.5},{"Place":"SALEM, OR","Years":58,"ByMonth":[2.9,1.3,0.5,0,0,0,0,0,0,0,0.3,1.6],"Total":6.6},{"Place":"SEXTON SUMMIT, OR","Years":59,"ByMonth":[21.3,15.4,18.6,8.8,2.1,0.1,0,0,0.1,1.5,9.7,20.2],"Total":97.8},{"Place":"GUAM, PC","Years":45,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"JOHNSTON ISLAND, PC","Years":28,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"KOROR, PC","Years":53,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"KWAJALEIN, MARSHALL IS., PC","Years":58,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"MAJURO, MARSHALL IS, PC","Years":48,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"PAGO PAGO, AMER SAMOA, PC","Years":43,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"POHNPEI, CAROLINE IS., PC","Years":52,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"CHUUK, E. CAROLINE IS., PC","Years":53,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"WAKE ISLAND, PC","Years":50,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"YAP, W CAROLINE IS., PC","Years":54,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"ALLENTOWN, PA","Years":56,"ByMonth":[9.1,9.2,5.9,0.6,0,0,0,0,0,0.1,1.3,6.2],"Total":32.4},{"Place":"ERIE, PA.","Years":47,"ByMonth":[23.6,15.4,12,2.7,0,0,0,0,0,0.3,10.8,24],"Total":88.8},{"Place":"HARRISBURG, PA","Years":52,"ByMonth":[9.7,9.2,6.1,0.5,0,0,0,0,0,0,2,6.8],"Total":34.3}';
+jsonData += ',{"Place":"MIDDLETOWN/HARRISBURG INTL APT","Years":63,"ByMonth":[10.1,9,6.3,0.6,0,0,0,0,0,0,2,6.6],"Total":34.6},{"Place":"PHILADELPHIA, PA","Years":60,"ByMonth":[6.1,6.6,3.5,0.3,0,0,0,0,0,0,0.7,3.3],"Total":20.5},{"Place":"PITTSBURGH, PA","Years":50,"ByMonth":[11.8,8.9,8.5,1.7,0.1,0,0,0,0,0.4,3.5,8.1],"Total":43},{"Place":"AVOCA, PA","Years":41,"ByMonth":[12.5,10.8,9.7,2.9,0.1,0,0,0,0,0.2,3.7,8.8],"Total":48.7},{"Place":"WILLIAMSPORT, PA","Years":58,"ByMonth":[11,9.7,8.3,1.2,0,0,0,0,0,0.1,2.8,8.3],"Total":41.4},{"Place":"BLOCK IS.,RI","Years":27,"ByMonth":[5.1,6.3,5.7,0.3,0,0,0,0,0,0,0.2,2.9],"Total":20.5},{"Place":"PROVIDENCE, RI","Years":49,"ByMonth":[9.6,9.6,7.3,0.7,0.2,0,0,0,0,0.1,1.2,6.8],"Total":35.5},{"Place":"CHARLESTON AP,SC","Years":56,"ByMonth":[0.1,0.2,0.1,0,0,0,0,0,0,0,0,0.3],"Total":0.7},{"Place":"COLUMBIA, SC","Years":54,"ByMonth":[0.5,0.8,0.2,0,0,0,0,0,0,0,0,0.3],"Total":1.8},{"Place":"GREENVILLE-SPARTANBURG AP, SC","Years":40,"ByMonth":[2.5,1.8,1.1,0,0,0,0,0,0,0,0.2,0.7],"Total":6.3},{"Place":"ABERDEEN, SD","Years":71,"ByMonth":[7.2,6.8,6.8,3.6,0.2,0,0,0,0,0.8,5.7,5.9],"Total":37},{"Place":"HURON, SD","Years":63,"ByMonth":[7.3,8.5,9.3,3,0.1,0,0,0,0,1.1,5.7,6.2],"Total":41.2},{"Place":"RAPID CITY, SD","Years":59,"ByMonth":[5.2,6.3,8.9,6.5,0.8,0.1,0,0,0.1,1.7,5.2,4.9],"Total":39.7},{"Place":"SIOUX FALLS, SD","Years":57,"ByMonth":[6.9,8,9.3,2.9,0,0,0,0,0,0.9,6.1,7],"Total":41.1},{"Place":"BRISTOL-JHNSN CTY-KNGSPRT,TN","Years":59,"ByMonth":[5.2,4.2,2.3,0.4,0,0,0,0,0,0,0.9,2.6],"Total":15.6},{"Place":"CHATTANOOGA, TN","Years":68,"ByMonth":[1.7,1.2,0.7,0.1,0,0,0,0,0,0,0,0.6],"Total":4.3},{"Place":"KNOXVILLE, TN","Years":58,"ByMonth":[3.9,3.4,1.7,0.4,0,0,0,0,0,0,0.6,1.5],"Total":11.5},{"Place":"MEMPHIS, TN","Years":49,"ByMonth":[2.2,1.4,0.8,0,0,0,0,0,0,0,0.1,0.6],"Total":5.1},{"Place":"NASHVILLE, TN","Years":57,"ByMonth":[3.7,3,1.5,0,0,0,0,0,0,0,0.4,1.4],"Total":10},{"Place":"OAK RIDGE,TN","Years":60,"ByMonth":[3.2,3,1.4,0.1,0,0,0,0,0,0,0.3,1.8],"Total":9.8},{"Place":"ABILENE, TX","Years":58,"ByMonth":[1.9,1,0.6,0,0,0,0,0,0,0,0.4,0.7],"Total":4.6},{"Place":"AMARILLO, TX","Years":61,"ByMonth":[4.3,3.6,2.5,0.6,0,0,0,0,0,0.2,2,3.2],"Total":16.4},{"Place":"AUSTIN, TX","Years":57,"ByMonth":[0.5,0.3,0,0,0,0,0,0,0,0,0.1,0],"Total":0.9},{"Place":"BROWNSVILLE, TX","Years":63,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"CORPUS CHRISTI, TX","Years":57,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"DALLAS-FORT WORTH, TX","Years":44,"ByMonth":[1.1,1,0.2,0,0,0,0,0,0,0,0.1,0.2],"Total":2.6},{"Place":"DEL RIO, TX","Years":32,"ByMonth":[0.6,0.2,0.1,0,0,0,0,0,0,0,0,0],"Total":0.9},{"Place":"EL PASO, TX","Years":57,"ByMonth":[1.3,0.8,0.4,0.3,0,0,0,0,0,0,0.9,1.6],"Total":5.3},{"Place":"GALVESTON, TX","Years":124,"ByMonth":[0,0.2,0,0,0,0,0,0,0,0,0,0],"Total":0.2},{"Place":"HOUSTON, TX","Years":68,"ByMonth":[0.2,0.2,0,0,0,0,0,0,0,0,0,0],"Total":0.4},{"Place":"LUBBOCK, TX","Years":54,"ByMonth":[2.5,2.6,1.4,0.2,0,0,0,0,0,0.2,1.3,2],"Total":10.2},{"Place":"MIDLAND-ODESSA, TX","Years":54,"ByMonth":[1.9,0.8,0.4,0,0,0,0,0,0,0,0.5,1],"Total":4.6},{"Place":"PORT ARTHUR, TX","Years":43,"ByMonth":[0.1,0.2,0,0,0,0,0,0,0,0,0,0],"Total":0.3},{"Place":"SAN ANGELO, TX","Years":50,"ByMonth":[1.5,0.6,0.2,0,0,0,0,0,0,0,0.6,0.2],"Total":3.1},{"Place":"SAN ANTONIO, TX","Years":57,"ByMonth":[0.5,0.2,0,0,0,0,0,0,0,0,0,0],"Total":0.7},{"Place":"VICTORIA, TX","Years":35,"ByMonth":[0.1,0,0,0,0,0,0,0,0,0,0,0],"Total":0.1},{"Place":"WACO, TX","Years":53,"ByMonth":[0.8,0.3,0.1,0,0,0,0,0,0,0,0.1,0.1],"Total":1.4},{"Place":"WICHITA FALLS, TX","Years":54,"ByMonth":[2.1,1.6,0.8,0,0,0,0,0,0,0,0.3,1],"Total":5.8},{"Place":"MILFORD, UT","Years":41,"ByMonth":[8.7,6.8,9.5,5.3,1.5,0,0,0,0.3,1.5,4.7,6.8],"Total":45.1},{"Place":"SALT LAKE CITY, UT","Years":74,"ByMonth":[13.6,9.8,9.3,5,0.6,0,0,0,0.1,1.3,7,11.8],"Total":58.5},{"Place":"BURLINGTON, VT","Years":59,"ByMonth":[19.3,16.5,13.9,4.2,0.2,0,0,0,0,0.2,6.8,17.7],"Total":78.8},{"Place":"LYNCHBURG, VA","Years":52,"ByMonth":[5.7,5.5,3.4,0.2,0,0,0,0,0,0,0.7,2.9],"Total":18.4},{"Place":"NORFOLK, VA","Years":52,"ByMonth":[3,2.9,1,0,0,0,0,0,0,0,0,0.9],"Total":7.8},{"Place":"RICHMOND, VA","Years":63,"ByMonth":[5,3.9,2.4,0.1,0,0,0,0,0,0,0.4,2],"Total":13.8},{"Place":"ROANOKE, VA","Years":49,"ByMonth":[6.7,6.9,3.6,0.4,0,0,0,0,0,0,1.5,3.9],"Total":23},{"Place":"WALLOPS ISLAND, VA","Years":23,"ByMonth":[2.4,3.4,0.7,0.1,0,0,0,0,0,0,0.2,1.6],"Total":8.4},{"Place":"OLYMPIA, WA","Years":55,"ByMonth":[6.8,3.2,1.7,0.1,0,0,0,0,0,0,1.4,3.5],"Total":16.7},{"Place":"QUILLAYUTE, WA","Years":30,"ByMonth":[4.8,2.8,1.5,0.3,0,0,0,0,0,0,1,2.7],"Total":13.1},{"Place":"SEATTLE C.O., WA","Years":48,"ByMonth":[2.9,0.9,0.6,0,0,0,0,0,0,0,0.7,2.2],"Total":7.3},{"Place":"SEATTLE SEA-TAC AP, WA","Years":52,"ByMonth":[4.9,1.6,1.3,0.1,0,0,0,0,0,0,1.1,2.4],"Total":11.4},{"Place":"SPOKANE, WA","Years":55,"ByMonth":[15.4,7.6,3.9,0.6,0.1,0,0,0,0,0.4,6.3,14.5],"Total":48.8},{"Place":"WALLA WALLA WASHINGTON","Years":55,"ByMonth":[4,5,1.1,0,0,0,0,0,0,0.2,2.3,4.7],"Total":17.3},{"Place":"YAKIMA, WA","Years":56,"ByMonth":[8.3,3.4,1.5,0,0,0,0,0,0,0.1,2.8,8.6],"Total":24.7},{"Place":"SAN JUAN, PR","Years":47,"ByMonth":[0,0,0,0,0,0,0,0,0,0,0,0],"Total":0},{"Place":"BECKLEY, WV","Years":36,"ByMonth":[17.3,15.9,9.1,2.6,0,0,0,0,0,0.5,3.7,11.1],"Total":60.2},{"Place":"CHARLESTON, WV","Years":49,"ByMonth":[11.1,8.7,5.4,0.9,0,0,0,0,0,0.2,2.4,5.3],"Total":34},{"Place":"ELKINS, WV","Years":34,"ByMonth":[21.9,17.9,12,4.2,0,0,0,0,0,0.5,6.4,14.8],"Total":77.7},{"Place":"HUNTINGTON, WV","Years":37,"ByMonth":[8.6,7.3,4.5,0.6,0,0,0,0,0,0.1,1.3,3.8],"Total":26.2},{"Place":"GREEN BAY, WI","Years":53,"ByMonth":[11.9,8.3,9,2.7,0.2,0,0,0,0,0.2,4.6,10.8],"Total":47.7},{"Place":"LA CROSSE, WI","Years":50,"ByMonth":[11,7.7,9,2,0,0,0,0,0,0.1,4.3,8.9],"Total":43},{"Place":"MADISON, WI","Years":54,"ByMonth":[10.9,7.7,8.1,2.5,0.1,0,0,0,0,0.3,3.7,10.8],"Total":44.1},{"Place":"MILWAUKEE, WI","Years":62,"ByMonth":[13.9,9.3,8.3,1.9,0.1,0,0,0,0,0.2,3,10.6],"Total":47.3},{"Place":"CASPER, WY","Years":52,"ByMonth":[9.8,10.2,13,12.5,3.6,0.2,0,0,1.5,5.9,10.7,10.5],"Total":77.9},{"Place":"CHEYENNE, WY","Years":67,"ByMonth":[6.4,6.4,11.8,9.3,3.4,0.2,0,0,1.1,3.8,7.1,6.1],"Total":55.6},{"Place":"LANDER, WY","Years":55,"ByMonth":[8.7,10.6,17.4,20.1,6.8,1.2,0,0,2.6,9.4,13.8,9.8],"Total":100.4},{"Place":"SHERIDAN, WY","Years":62,"ByMonth":[11,10.4,12.4,9.7,2,0.1,0,0,1.4,4.4,9.1,10.9],"Total":71.4}]';
+/*var reader = new FileReader();
+reader.onloadend = function (evt) {
+	console.log("read success");
+	console.log(evt.target.result);
+};
+reader.readAsDataURL('snowfall.json');
+*/
+data = JSON.parse( jsonData );
+/*
+$.getJSON('snowfall.json', function(data) {
+  data = data.sort(function(a, b)
+  {
+    return b.Total - a.Total;
+  });
+*/
+
+
+  data.forEach(function(item) {
+    $e('div').addClass('item')
+      .append($e('span').addClass('lab')
+        .text(item.Place)
+        .append($e('span').addClass('val')
+          .text('(' + item.Total + ' in)')))
+      .append($e('div').addClass('bar'))
+      .appendTo(root);
+  });
+
+  $('#example-boo').on('click', function() {
+    // just for the joy of seeing something change
+    root.get(0).className = 'boo';
+    $('.item span').css('font-size', '');
+    var elapsed = Time(function() {
+      for (var i = 0; i < 100; ++i) {
+          UpdateThrash(data);
+      }
+    });
+    
+    $('#example-boo-time').text(elapsed + 'ms');
+  });
+
+  $('#example-yay').on('click', function() {
+    // just for the joy of seeing something change
+    root.get(0).className = 'yay';
+    $('.item span').css('font-size', '');
+    var elapsed = Time(function() {
+      for (var i = 0; i < 100; ++i) {
+          UpdateNoThrash(data);
+      }
+    });
+    $('#example-yay-time').text(elapsed + 'ms');
+  });
+
+  $('#example-th').on('click', function() {
+	// just for the joy of seeing something change
+	root.get(0).className = 'th';
+	$('.item span').css('font-size', '');
+	var elapsed = Time(function() {
+	  for (var i = 0; i < 100; ++i) {
+		  Update(data);
+	  }
+	});
+	$('#example-th-time').text(elapsed + 'ms');
+  });
+
+
+  UpdateNoThrash(data);
+//});
+
+})();
+});
+// fu..
+</script>
+</head>
+<body>
+<div id="example">
+</div>
+<div>
+  <button id="example-boo">Update (w/ layout thrashing)</button>
+  <button id="example-yay">Update (w/o layout thrashing)</button>
+  <!--<button id="example-th">Update</button> -->
+	<br>
+  <div id="example-boo-time">&nbsp;</div>
+  <div id="example-yay-time">&nbsp;</div>
+  <div id="example-th-time">&nbsp;</div>
+</div>
+</body>
+</html>

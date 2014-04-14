@@ -1,0 +1,10 @@
+https://software.intel.com/en-us/node/492826
+http://cordova.apache.org/docs/en/2.9.0/
+https://developers.google.com/maps/documentation/javascript/examples/icon-complex?hl=ru
+
+XDK:
+Download: http://xdk-software.intel.com/download.html
+Getting Startedhttp://software.intel.com/en-us/html5/tools
+Traininghttp://software.intel.com/en-us/html5/training
+DocumentationIntel XDK New:http://software.intel.com/en-us/html5/articles/xdkdocs
+

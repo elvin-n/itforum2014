@@ -1,0 +1,127 @@
+<html>
+<head>
+<style>
+#example-head { border-bottom: 1px solid #999; padding-bottom: 2px; font-weight: bold; }
+#example { font-family: Helvetica, Arial, san-serif; height: 400px; overflow: auto; line-height: 16px; border-bottom: 1px solid #999; padding: 10px 0; }
+#example .item { position: relative; }
+#example .item .lab { text-align: right; display: inline-block; color: #444; }
+#example .item .val { text-align: right; display: inline-block; margin: 0 5px; color: #999; }
+#example .item .bar { position: absolute; top: 1px; bottom: 1px; background-color: #444; margin-left: 5px; }
+#example.boo .bar { background-color: #7cf; }
+#example.yay .bar { background-color: #f88; }
+#example.th .bar { background-color: #a4f; }
+
+.tool { margin-bottom: 50px; line-height: 0; }
+.tool > .label { background-color: #ccc; color: #333; font-size: 16px; padding-left: 20px; line-height: 32px; text-shadow: 1px 1px 1px #fff; }
+
+#bindings { margin-bottom: 50px; }
+#bindings > span { font-weight: bold; display: block; border-bottom: 1px solid #ccc; margin-bottom: 5px; }
+#bindings > ul { list-style-type: none; padding: 0; margin: 0 0 50px 0; }
+#bindings li { margin: 0; display: inline-block; width: 220px; font-size: 90%; }
+
+#example-boo-time, #example-yay-time { width: 442px; display: inline-block; text-align: center; margin-bottom: 10px; }
+#example-boo-time, #example-th-time { width: 442px; display: inline-block; text-align: center; margin-bottom: 10px; }
+
+#example-boo-time { margin-right: 10px; }
+
+#example-boo, #example-yay, #example-th { margin-top: 10px; width: 442px; color: #fff; padding: 10px; border: 1px solid #5e5e5e; border-radius: 4px; background: #e95c41; background: -webkit-linear-gradient(top, #e95c41, #d93e2a); background: -moz-linear-gradient(top, #e95c41, #d93e2a); background: -o-linear-gradient(top, #e95c41, #d93e2a); background: -ms-linear-gradient(top, #e95c41, #d93e2a); font-size: 15px; }
+#example-boo:active, #example-yay:active { box-shadow: inset 0px -2px 10px rgba(0, 0, 0, 0.3); color: #eee; }
+
+#example-boo { margin-right: 10px; }
+</style>
+<script src="jquery.min.js"></script>
+<script src="init.js"></script>
+<script src="performance_task.js"></script>
+<script>
+$(function () {
+
+(function() {
+
+// That's pretty much the end of the interesting stuff. You are welcome to read the
+// rest of the code. It's not like I wrote something offensive like "fu.." at the
+// bottom of this file.
+var Now;
+if (typeof performance !== 'undefined' && performance.now) {
+  Now = function() {
+    return performance.now();
+  };
+} else if (Date.now) {
+  Now = function() {
+    return Date.now();
+  };
+} else {
+  Now = function() {
+    return new Date().getTime();
+  }
+}
+
+var root = $('#example');
+
+var $e = function(type) {
+  return $(document.createElement(type));
+}
+
+var Time = function(f) {
+  var s = Now();
+  f();
+  return (Now() - s) | 0;
+};
+
+data = JSON.parse( jsonData );
+  data.forEach(function(item) {
+    $e('div').addClass('item')
+      .append($e('span').addClass('lab')
+        .text(item.Place)
+        .append($e('span').addClass('val')
+          .text('(' + item.Total + ' in)')))
+      .append($e('div').addClass('bar'))
+      .appendTo(root);
+  });
+
+  $('#example-boo').on('click', function() {
+    // just for the joy of seeing something change
+    root.get(0).className = 'boo';
+    $('.item span').css('font-size', '');
+    var elapsed = Time(function() {
+      for (var i = 0; i < 100; ++i) {
+          UpdateThrash(data);
+      }
+    });
+    
+    $('#example-boo-time').text(elapsed + 'ms');
+  });
+
+  $('#example-yay').on('click', function() {
+    // just for the joy of seeing something change
+    root.get(0).className = 'yay';
+    $('.item span').css('font-size', '');
+    var elapsed = Time(function() {
+      for (var i = 0; i < 100; ++i) {
+          UpdateNoThrash(data);
+      }
+    });
+    $('#example-yay-time').text(elapsed + 'ms');
+  });
+
+  UpdateNoThrash(data);
+//});
+
+})();
+});
+// fu..
+</script>
+</head>
+<body>
+<div id="example">
+</div>
+<div>
+  <button id="example-boo">Update (w/ layout thrashing)</button>
+  <button id="example-yay">Update (w/o layout thrashing)</button>
+  <!--<button id="example-th">Update</button> -->
+	<br>
+  <div id="example-boo-time">&nbsp;</div>
+  <div id="example-yay-time">&nbsp;</div>
+  <div id="example-th-time">&nbsp;</div>
+</div>
+</body>
+</html>

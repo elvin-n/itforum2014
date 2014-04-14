@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--HTML5 doctype-->
+<html>
+
+	<head>
+		<link rel="stylesheet" type="text/css" href="jqm/jquery.mobile-min.css">
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="css/index_main.less.css" class="main-less">
+		<title>Your New Application</title>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+		<style type="text/css">
+			/* Prevent copy paste for all elements except text fields */
+			*  { -webkit-user-select:none; -webkit-tap-highlight-color:rgba(255, 255, 255, 0); }
+			input, textarea  { -webkit-user-select:text; }
+		</style>
+		<script src="intelxdk.js"></script>
+		<script type="text/javascript">
+			/* Intel native bridge is available */
+			var onDeviceReady=function(){
+			//hide splash screen
+			intel.xdk.device.hideSplashScreen();
+			};
+			document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
+		</script>
+		<script src="cordova.js"></script>
+		<script type="application/javascript" src="js/jquery.min.js"></script>
+		<script type="application/javascript" src="jqm/jquery.mobile-min.js" data-ver="0"></script>
+		<script type="application/javascript" src="js/index_user_scripts.js"></script>
+		<script type="application/javascript" src="js/jqm_subpage.js"></script>
+		<script type="application/javascript" src="lib/underscore.min.js"></script>
+		<script type="application/javascript" src="lib/backbone.js"></script>
+		<script type="application/javascript" src="lib/Backbone.ModelBinder.min.js"></script>
+		<script type="application/javascript" src="js/backbone_support.js"></script>
+		<script type="application/javascript" src="js/ad_events_data.js"></script>
+		<script type="application/javascript" src="js/jqm_events_data.js"></script>
+		<script type="application/javascript" src="xhr.js"></script>
+		<script type="application/javascript" src="xdk/services/service-credentials.js"></script>
+		<script type="application/javascript" src="xdk/services/service-methods.js"></script>
+		<script type="application/javascript" src="js/index_init_services.js"></script>
+		<script type="application/javascript" src="js/index_setup_services.js"></script>
+        <script src="http://debug-software.intel.com/target/target-script-min.js#KAnA4T__sn8HQO6Bg-YjfY0Bu0SXOhzEFazjE02PaE8"></script>
+	</head>
+
+	<body>
+		<!-- content goes here-->
+		<div class="uwrap">
+			<div class="upage" id="mainpage" data-role="page">
+				<div class="upage-outer">
+					<div class="upage-content" id="mainsub">
+
+						<div class="grid grid-pad urow uib_row_1 row-height-1" data-uib="layout/row" data-ver="0">
+							<div class="col uib_col_1 col-0_12-12" data-uib="layout/col" data-ver="0">
+								<div class="widget-container content-area vertical-col">
+
+									<div data-role="collapsible-set" class="no_wrap widget uib_w_1 d-margins" data-uib="jquery_mobile/accordion" data-ver="0">
+										<div data-role="collapsible" class="no_wrap widget uib_w_2" data-uib="jquery_mobile/collapsible" data-ver="0">
+											<h4>Collapsible</h4>
+											<div class="col uib_col_2 single-col" data-uib="layout/col" data-ver="0">
+												<div class="widget-container content-area vertical-col">
+
+													<div class="table-thing with-label widget uib_w_6 d-margins" data-uib="jquery_mobile/input" data-ver="0">
+														<label class="narrow-control label-inline">City</label>
+														<input class="wide-control" placeholder="Nizhny Novgorod" type="text">
+													</div><a class="widget uib_w_5 d-margins" data-uib="jquery_mobile/button" data-ver="0" data-role="button" id="CityInfoButton">Info</a><span class="uib_shim"></span>
+												</div>
+											</div>
+										</div>
+										<div data-role="collapsible" class="no_wrap widget uib_w_3" data-uib="jquery_mobile/collapsible" data-ver="0">
+											<h4>Get by GPS coordinates</h4>
+											<div class="col uib_col_3 single-col" data-uib="layout/col" data-ver="0">
+												<div class="widget-container content-area vertical-col">
+
+													<a class="widget uib_w_4 d-margins" data-uib="jquery_mobile/button" data-ver="0" data-role="button" id="GpsInfoBtn">Info</a><span class="uib_shim"></span>
+												</div>
+											</div>
+										</div>
+									</div><span class="uib_shim"></span>
+								</div>
+							</div>
+							<span class="uib_shim"></span>
+						</div>
+					</div>
+					<div id="uib_page_1" class="upage-content hidden">
+
+						<div class="grid grid-pad urow uib_row_2 row-height-2" data-uib="layout/row" data-ver="0">
+							<div class="col uib_col_5 col-0_12-12" data-uib="layout/col" data-ver="0">
+								<div class="widget-container content-area vertical-col">
+
+									<div class="widget uib_w_7 d-margins" data-uib="media/text" data-ver="0" id="TestOutput">
+										<div class="widget-container left-receptacle"></div>
+										<div class="widget-container right-receptacle"></div>
+										<div>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+										</div>
+									</div>
+									<div class="widget uib_w_9 d-margins" data-uib="media/text" data-ver="0" id="GPSCity">
+										<div class="widget-container left-receptacle"></div>
+										<div class="widget-container right-receptacle"></div>
+										<div>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+										</div>
+									</div>
+									<div class="widget uib_w_10 d-margins" data-uib="media/text" data-ver="0" id="GPSTemp">
+										<div class="widget-container left-receptacle"></div>
+										<div class="widget-container right-receptacle"></div>
+										<div>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+										</div>
+									</div>
+									<a class="widget uib_w_8 d-margins" data-uib="jquery_mobile/button" data-ver="0" data-role="button">Back</a><span class="uib_shim"></span>
+								</div>
+							</div>
+							<span class="uib_shim"></span>
+						</div>
+					</div>
+					<!-- /upage-content -->
+
+				</div>
+				<!-- /upage-outer -->
+
+			</div>
+			<!-- /upage -->
+
+		</div>
+		<!-- /uwrap -->
+	</body>
+
+</html>

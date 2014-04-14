@@ -1,0 +1,112 @@
+{
+  "project": {
+    "projectSettingsVersion": "1.0",
+    "creationData": {
+      "type": "App Designer",
+      "src": "appDesigner",
+      "projectGuid": "c1456004-9312-4c42-aa2a-116dd93174f3",
+      "lastModifiedDate": 1397458209853,
+      "creationDate": 1397335652300
+    },
+    "XDK-app-designer": "true",
+    "sourceDirectory": "www",
+    "startFile": "index.html",
+    "projectFiles": {},
+    "projectDirectories": {
+      "xdk/services/iodocs": {
+        "settings": {
+          "project": {
+            "XDK-generated": "true"
+          }
+        }
+      },
+      "www/xdk/services": {
+        "settings": {
+          "project": {
+            "XDK-generated": "true"
+          }
+        }
+      }
+    },
+    "libraries": [
+      {
+        "name": "Cordova",
+        "version": "2.9.0",
+        "data": {
+          "default": true
+        }
+      },
+      {
+        "name": "intelXDK",
+        "version": "4.0.0",
+        "data": {
+          "default": true
+        }
+      }
+    ],
+    "serviceMethods": [
+      {
+        "methodName": "openweathermapgetByGPSCoordinates",
+        "serviceName": "openweathermap",
+        "resultType": "object",
+        "selectedPaths": {
+          ".wind.speed": "number",
+          ".wind.deg": "number",
+          ".main.temp": "number",
+          ".sys.country": "string",
+          ".name": "string"
+        },
+        "cachedResult": {
+          "coord": {
+            "lon": 43.83,
+            "lat": 55.4
+          },
+          "sys": {
+            "message": 0.0338,
+            "country": "RU",
+            "sunrise": 1397354651,
+            "sunset": 1397405163
+          },
+          "weather": [
+            {
+              "id": 803,
+              "main": "Clouds",
+              "description": "broken clouds",
+              "icon": "04n"
+            }
+          ],
+          "base": "cmc stations",
+          "main": {
+            "temp": 278.55,
+            "temp_min": 278.55,
+            "temp_max": 278.55,
+            "pressure": 1032.49,
+            "humidity": 79
+          },
+          "wind": {
+            "speed": 5.57,
+            "deg": 177.002
+          },
+          "clouds": {
+            "all": 76
+          },
+          "dt": 1397420102,
+          "id": 580724,
+          "name": "Arzamas",
+          "cod": 200
+        },
+        "codeGenerationParams": {
+          "apiName": "openweathermap",
+          "endpointName": "openweathermap",
+          "methodName": "getByGPSCoordinates",
+          "namespace": "intel.xdk.services."
+        },
+        "parameters": {
+          "lat": " 55.4",
+          "lon": " 43.83"
+        },
+        "requiredLibraries": []
+      }
+    ]
+  }
+}
