@@ -27,14 +27,24 @@ var geolocationSuccess = function(position){
             
           
         });
-        $(document).on("click", ".uib_w_5", function(evt)
-        {
-             $('#TestOutput')[0].innerHTML='test city name';
-         activate_subpage("#uib_page_1"); 
-        });
+        
         $(document).on("click", ".uib_w_8", function(evt)
         {
          activate_subpage("#mainsub"); 
+        });
+        
+        $(document).on("click", "#CityInfoButton", function(evt)
+        {
+            var cityName = $('#idCityName')[0].value;
+            if( !cityName.length ) 
+                cityName = $('#idCityName')[0].placeholder;
+            intel.xdk.services.openweathermapgetByGPSCoordinates({"q":" " + cityName })
+            .then ( function (response ) {
+                    $('#GPSCity').html(response.name);
+                    $('#GPSTemp').html((parseFloat(response.main.temp-273)).toFixed(1));
+                activate_subpage("#uib_page_1");
+            });
+        /* your code goes here */ 
         });
 }
  $(document).ready(register_event_handlers);

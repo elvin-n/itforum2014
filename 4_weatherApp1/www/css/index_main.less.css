@@ -246,7 +246,7 @@ body:not(#afui) .upage-outer {
     padding-right: 20px;
   }
 }
-@media all and (min-width: 0px) {
+@media all and (min-width: 360px) {
   .row-height-1 > .col > .content-area {
     min-height: 100px;
   }
@@ -316,7 +316,7 @@ label.narrow-control:empty + .wide-control {
     padding-left: 0px !important;
   }
 }
-@media all and (min-width: 0px) {
+@media all and (min-width: 360px) {
   .row-height-2 > .col > .content-area {
     min-height: 100px;
   }

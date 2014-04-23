@@ -23,6 +23,19 @@
             "Description": "longitude"
           }
         ]
+      },
+      {
+        "MethodName": "getByCityName",
+        "Synopsis": "Returns data by city name",
+        "parameters": [
+          {
+            "Name": "q",
+            "Required": "Y",
+            "Default": " Moscow",
+            "Type": "string",
+            "Description": "city name"
+          }
+        ]
       }
     ]
   }
